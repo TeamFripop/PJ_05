@@ -1,6 +1,6 @@
 package moduls.Podpora;
 
 public interface JsonSupport {
-    String toJson(String data);
+    String toJson();
     void fromJson(String data);
 }

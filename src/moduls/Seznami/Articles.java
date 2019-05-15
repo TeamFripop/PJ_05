@@ -1,10 +1,14 @@
 package moduls.Seznami;
 
+import com.google.gson.Gson;
 import moduls.Artikel;
+import moduls.Podpora.JsonSupport;
+import moduls.Racun;
+import sun.awt.image.ImageWatched;
 
 import java.util.LinkedList;
 
-public class Articles {
+public class Articles implements JsonSupport {
     private LinkedList<Artikel> postavke;
     private String naziv;
 
@@ -16,7 +20,9 @@ public class Articles {
         this.naziv = naziv;
         postavke = new LinkedList<Artikel>();
     }
-
+    public Articles(LinkedList<Artikel> artikli) {
+        postavke = artikli;
+    }
     public void add(Artikel postavka) {
         postavke.add(postavka);
     }
@@ -59,5 +65,27 @@ public class Articles {
                 "postavke=" + postavke +
                 ", naziv='" + naziv + '\'' +
                 '}';
+    }
+
+    @Override
+    public void fromJson(String data)
+    {
+        Gson gson = new Gson();
+        Artikel[] art = gson.fromJson(data, Artikel[].class);
+        System.out.println("Stevilo Postavk: " + art.length);
+
+        postavke = new LinkedList<>();
+        for(Artikel a : art)
+        {
+            System.out.println(a.toString());
+            postavke.addLast(a);
+        }
+    }
+
+    @Override
+    public String toJson()
+    {
+        Gson gson = new Gson();
+        return gson.toJson(postavke.toArray());
     }
 }

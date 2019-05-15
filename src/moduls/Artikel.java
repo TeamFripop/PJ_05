@@ -17,6 +17,9 @@ public class Artikel implements Searchable {
     private int kolicina = 1;
     private int timeAdded;
     private int skupnaCena;
+    private int teza;
+    private String code;
+    private boolean isOk = true;
 
     public Artikel(String naziv, int cena, Vrsta vrsta) {
         this.vrsta = vrsta;
@@ -33,6 +36,50 @@ public class Artikel implements Searchable {
         this.kolicina = kolicina;
         this.timeAdded = (int) (new Date().getTime() / 1000);
         this.skupnaCena = getSkupnaCena();
+    }
+
+    public Artikel(String naziv, String code, Vrsta vrsta, int kolicina, int cenaZaKilogram) {
+        this.vrsta = vrsta;
+        this.naziv = naziv;
+        this.code = code;
+        this.kolicina = kolicina;
+        this.cena = cenaZaKilogram;
+        getDataFromCode();
+        this.timeAdded = (int) (new Date().getTime() / 1000);
+        this.skupnaCena = getSkupnaCena();
+    }
+    public String getCode()
+    {
+        return this.code;
+    }
+    public void setCode(String code)
+    {
+        this.code = code;
+        getDataFromCode();
+    }
+
+    private void getDataFromCode()
+    {
+        if(!Artikel.checkDigit(code))
+        {
+            System.out.println("NAPACNA KODA");
+            isOk = false;
+            return;
+        }
+        boolean foundNonZero = false;
+        String tmp = "";
+        for(int i = code.length() - 5; i < code.length() - 1; i++)
+        {
+
+            if(code.charAt(i) != '0' || foundNonZero)
+            {
+                foundNonZero = true;
+                tmp += code.charAt(i);
+            }
+
+        }
+        System.out.println("TEZA: " + tmp);
+        teza = Integer.parseInt(tmp);
     }
 
     public String getNaziv() {
@@ -70,7 +117,14 @@ public class Artikel implements Searchable {
     }
 
     public int getSkupnaCena() {
-        return this.kolicina * this.cena;
+        if (teza == 0)
+        {
+            return this.kolicina * this.cena;
+        }
+        else
+        {
+            return this.kolicina * this.cena * this.teza / 1000;
+        }
     }
     public boolean search(String data)
     {
@@ -79,6 +133,7 @@ public class Artikel implements Searchable {
             return true;
         return false;
     }
+
     @Override
     public String toString() {
         return "Artikel{" +
@@ -88,6 +143,36 @@ public class Artikel implements Searchable {
                 ", kolicina=" + kolicina +
                 ", timeAdded=" + timeAdded +
                 ", skupnaCena=" + skupnaCena +
+                ", teza=" + teza +
+                ", code='" + code + '\'' +
+                ", isOk=" + isOk +
                 '}';
+    }
+
+    public static boolean checkDigit(String code)
+    {
+        int sum = 0;
+        int last = Integer.parseInt(code.charAt(code.length() -1) + "");
+        for(int i = code.length() - 2, c = 0; i >= 0; i--, c++)
+        {
+            if(c % 2 == 0)
+            {
+                sum += 3 * Integer.parseInt(code.charAt(i) + "");
+                System.out.println("3 * " + Integer.parseInt(code.charAt(i) + ""));
+            }
+            else
+            {
+                sum += 1 * Integer.parseInt(code.charAt(i) + "");
+                System.out.println("1 * " + Integer.parseInt(code.charAt(i) + ""));
+            }
+        }
+        System.out.print("\nSum: " + sum + " Check Digit: " + last + " ==> ");
+        if((sum + last) % 10 == 0 || (sum - last) % 10 == 0)
+        {
+            System.out.print("Correct \n");
+            return true;
+        }
+        System.out.print("Wrong \n");
+        return  false;
     }
 }

@@ -1,6 +1,9 @@
 //import java.io.*;
 import moduls.Artikel;
+import moduls.Podpora.JsonHelper;
 import moduls.Seznami.Articles;
+import moduls.Seznami.Companies;
+import moduls.Seznami.Invoices;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -17,11 +20,11 @@ import moduls.*;
 
 public class Main {
     public static void main(String[] args) {
-    //--- VAJA 1 ---//
-
         try
         {
-            Vaja02();
+            //Vaja01();
+            //Vaja02();
+            Vaja05();
         }
         catch (Exception e)
         {
@@ -36,6 +39,12 @@ public class Main {
         postavke_1.add(new Artikel("Spar Vital Voda 0,75l", 35, Artikel.Vrsta.ARTIKEL));
         postavke_1.add(new Artikel("Spar Strucka Rezna Mes", 129, Artikel.Vrsta.ARTIKEL));
         postavke_1.add(new Artikel("SI Osebna Tehnica", 1990, Artikel.Vrsta.ARTIKEL));
+        postavke_1.add(new Artikel("Lucke LED 200 Zun. Bele", 2490, Artikel.Vrsta.ARTIKEL));
+        postavke_1.add(new Artikel("Banane", "2116789002000", Artikel.Vrsta.ARTIKEL, 7, 250));
+        postavke_1.add(new Artikel("Jabolke", "2116752001504", Artikel.Vrsta.ARTIKEL, 10, 150));
+        postavke_1.add(new Artikel("Grozdje", "2116731003703", Artikel.Vrsta.ARTIKEL, 2, 1200));
+       // postavke_1.add(new Artikel("Grozdje - PRIMER NAPACNE KODE", "2116731003700", Artikel.Vrsta.ARTIKEL, 2, 1200));
+        postavke_1.add(new Artikel("Lucke LED 200 Zun. Bele", 2490, Artikel.Vrsta.ARTIKEL));
         postavke_1.add(new Artikel("Lucke LED 200 Zun. Bele", 2490, Artikel.Vrsta.ARTIKEL));
         racuni.add(new Racun(Racun.getGlobalId(), postavke_1, "Tuš"));
 
@@ -60,6 +69,7 @@ public class Main {
             System.out.println("Skupni znesek na racunu: " + r.getId() + " ki je bil dodan: " + r.getDatum() + " je: " + r.getSkupniZnesekEvri() + "€");
             System.out.println(r.toString());
         }
+        Vaja03(racuni, postavke_1.get());
     }
     private static void Vaja02()
     {
@@ -77,7 +87,43 @@ public class Main {
             System.out.println("Podjetje " + p4.getIme() + " z sedezem na " + p4.getNaslov() + " ni davcni zavezanec");
         }
         System.out.println("Preverjam EAR kodo 6291041500216 z stevilom 3");
-        Article.checkDigit("6291041500216", 3);
+        Artikel.checkDigit("6291041500213");
+    }
+    private static void Vaja03(LinkedList<Racun> racuni, LinkedList<Artikel> artikli)
+    {
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println("Generiram JSON string racunov...");
+        Invoices invoices = new Invoices(racuni);
+        System.out.println("JSON: " + invoices.toJson());
+
+        JsonHelper.toGsonFile(invoices.toJson(), "racuni.txt");
+        invoices.fromJson(JsonHelper.fromGsonFile("racuni.txt"));
+
+        System.out.println();
+        Podjetje p1 = new Podjetje("Kinezika d.o.o.", "18918557", "3936066000", true, "034254338", "office@kinezika.si");
+        Podjetje p2 = new Podjetje("Weber d.o.o.", "70175837", "5294827000", true, "045120925", "info@weber.si");
+        Podjetje p3 = new Podjetje("Jakopin d.o.o.", "94015899", "5795621000", true, "073373990", "info@jakopin.si");
+        Podjetje p4 = new Podjetje("Auer optika, Denis Auer s.p.", "38759373", "3547876000", true, "026200804", "optika@vsezaoci.si", "Trg vstaje 8, Ruše, 2342 Ruše");
+        LinkedList<Podjetje> podjetja = new LinkedList<>();
+        podjetja.addLast(p1);
+        podjetja.addLast(p2);
+        podjetja.addLast(p3);
+        podjetja.addLast(p4);
+        Companies companies = new Companies(podjetja);
+
+        System.out.println("Generiram JSON string podjetij...");
+        System.out.println("JSON: " + companies.toJson());
+        JsonHelper.toGsonFile(companies.toJson(), "podjetja.txt");
+        companies.fromJson(JsonHelper.fromGsonFile("podjetja.txt"));
+        System.out.println();
+
+        System.out.println("Generiram JSON string artikov...");
+        Articles articles = new Articles(artikli);
+        System.out.println("JSON: " + invoices.toJson());
+        JsonHelper.toGsonFile(articles.toJson(), "artikli.txt");
+        articles.fromJson(JsonHelper.fromGsonFile("artikli.txt"));
     }
     private static void Vaja05()
     {

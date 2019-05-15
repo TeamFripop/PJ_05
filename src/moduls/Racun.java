@@ -106,7 +106,7 @@ public class Racun implements Searchable {
             return true;
         return false;
     }
-    public java.lang.String toString() {
+    public String toString() {
         return "Racun{" +
                 "id=" + id +
                 ", datum=" + datum +
