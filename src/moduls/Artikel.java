@@ -1,16 +1,17 @@
 package moduls;
 
-import moduls.Searchable;
+import moduls.Podpora.CountryCodeHelper;
 
 import java.util.Date;
+import java.util.UUID;
 
-public class Artikel implements Searchable {
+public class Artikel implements Searchable  {
     public enum Vrsta {
         ARTIKEL,
         STORITEV,
         NEZNANO;
     }
-
+    private UUID id;
     private Vrsta vrsta;
     private String naziv;
     private int cena;
@@ -19,7 +20,10 @@ public class Artikel implements Searchable {
     private int skupnaCena;
     private int teza;
     private String code;
+    private String internalCode;
+    private String drzava;
     private boolean isOk = true;
+    private double ddv = 22;
 
     public Artikel(String naziv, int cena, Vrsta vrsta) {
         this.vrsta = vrsta;
@@ -27,6 +31,25 @@ public class Artikel implements Searchable {
         this.cena = cena;
         this.timeAdded = (int) (new Date().getTime() / 1000);
         this.skupnaCena = getSkupnaCena();
+    }
+
+    public Artikel(String naziv, String code, int cena, Vrsta vrsta) {
+        this.vrsta = vrsta;
+        this.naziv = naziv;
+        this.cena = cena;
+        this.code = code;
+        this.drzava = getCountryFromCode(code);
+        System.out.println("Drzava razbrabna iz kode: " + this.drzava + " za izdelek: " + this.naziv);
+        this.timeAdded = (int) (new Date().getTime() / 1000);
+        this.skupnaCena = getSkupnaCena();
+    }
+
+    public double getDdv() {
+        return ddv;
+    }
+
+    public void setDdv(double ddv) {
+        this.ddv = ddv;
     }
 
     public Artikel(String naziv, int cena, int kolicina, Vrsta vrsta) {
@@ -38,16 +61,49 @@ public class Artikel implements Searchable {
         this.skupnaCena = getSkupnaCena();
     }
 
-    public Artikel(String naziv, String code, Vrsta vrsta, int kolicina, int cenaZaKilogram) {
+    public Artikel(String naziv, String internalCode, Vrsta vrsta, int kolicina, int cenaZaKilogram) {
         this.vrsta = vrsta;
         this.naziv = naziv;
-        this.code = code;
+        this.internalCode = internalCode;
         this.kolicina = kolicina;
         this.cena = cenaZaKilogram;
-        getDataFromCode();
+        getDataFromCode(internalCode);
         this.timeAdded = (int) (new Date().getTime() / 1000);
         this.skupnaCena = getSkupnaCena();
     }
+    //Database Constructor
+    public Artikel(UUID id, String code, String title, Double price, Double ddv, int stock)
+    {
+        if(id == null)
+        {
+            this.id = UUID.randomUUID();
+        }
+        else
+        {
+            this.id = id;
+        }
+        this.code = code;
+        this.drzava = getCountryFromCode(code);
+        this.naziv = title;
+        this.ddv = ddv;
+        this.kolicina = stock;
+        this.cena = (int)(price * 100);
+        this.skupnaCena = getSkupnaCena();
+    }
+    // Buy Constructor
+    public Artikel(UUID id, int stock)
+    {
+        if(id == null)
+        {
+            this.id = UUID.randomUUID();
+        }
+        else
+        {
+            this.id = id;
+        }
+        this.kolicina = stock;
+    }
+
     public String getCode()
     {
         return this.code;
@@ -55,10 +111,10 @@ public class Artikel implements Searchable {
     public void setCode(String code)
     {
         this.code = code;
-        getDataFromCode();
+        getDataFromCode(code);
     }
 
-    private void getDataFromCode()
+    private void getDataFromCode(String code)
     {
         if(!Artikel.checkDigit(code))
         {
@@ -80,6 +136,54 @@ public class Artikel implements Searchable {
         }
         System.out.println("TEZA: " + tmp);
         teza = Integer.parseInt(tmp);
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public String getInternalCode() {
+        return internalCode;
+    }
+
+    public void setInternalCode(String internalCode) {
+        this.internalCode = internalCode;
+    }
+
+    public String getDrzava() {
+        return drzava;
+    }
+
+    @Override
+    public String toString() {
+        return "Artikel{" +
+                "id=" + id +
+                ", vrsta=" + vrsta +
+                ", naziv='" + naziv + '\'' +
+                ", cena=" + cena +
+                ", kolicina=" + kolicina +
+                ", timeAdded=" + timeAdded +
+                ", skupnaCena=" + skupnaCena +
+                ", teza=" + teza +
+                ", code='" + code + '\'' +
+                ", internalCode='" + internalCode + '\'' +
+                ", drzava='" + drzava + '\'' +
+                ", isOk=" + isOk +
+                ", ddv=" + ddv +
+                '}';
+    }
+
+    public void setDrzava(String drzava) {
+        this.drzava = drzava;
+    }
+
+    public static String getCountryFromCode(String code)
+    {
+        return CountryCodeHelper.getCountryFromCode(code);
     }
 
     public String getNaziv() {
@@ -134,45 +238,43 @@ public class Artikel implements Searchable {
         return false;
     }
 
-    @Override
-    public String toString() {
-        return "Artikel{" +
-                "vrsta=" + vrsta +
-                ", naziv='" + naziv + '\'' +
-                ", cena=" + cena +
-                ", kolicina=" + kolicina +
-                ", timeAdded=" + timeAdded +
-                ", skupnaCena=" + skupnaCena +
-                ", teza=" + teza +
-                ", code='" + code + '\'' +
-                ", isOk=" + isOk +
-                '}';
-    }
-
     public static boolean checkDigit(String code)
     {
-        int sum = 0;
-        int last = Integer.parseInt(code.charAt(code.length() -1) + "");
-        for(int i = code.length() - 2, c = 0; i >= 0; i--, c++)
-        {
-            if(c % 2 == 0)
-            {
-                sum += 3 * Integer.parseInt(code.charAt(i) + "");
-                System.out.println("3 * " + Integer.parseInt(code.charAt(i) + ""));
-            }
-            else
-            {
-                sum += 1 * Integer.parseInt(code.charAt(i) + "");
-                System.out.println("1 * " + Integer.parseInt(code.charAt(i) + ""));
-            }
-        }
-        System.out.print("\nSum: " + sum + " Check Digit: " + last + " ==> ");
-        if((sum + last) % 10 == 0 || (sum - last) % 10 == 0)
-        {
-            System.out.print("Correct \n");
-            return true;
-        }
-        System.out.print("Wrong \n");
-        return  false;
+        return checkDigit(code, false);
     }
+    public static boolean checkDigit(String code, boolean silent)
+    {
+        try
+        {
+            int sum = 0;
+            int last = Integer.parseInt(code.charAt(code.length() -1) + "");
+            for(int i = code.length() - 2, c = 0; i >= 0; i--, c++)
+            {
+                if(c % 2 == 0)
+                {
+                    sum += 3 * Integer.parseInt(code.charAt(i) + "");
+                    if(!silent)System.out.println("3 * " + Integer.parseInt(code.charAt(i) + ""));
+                }
+                else
+                {
+                    sum += 1 * Integer.parseInt(code.charAt(i) + "");
+                    if(!silent) System.out.println("1 * " + Integer.parseInt(code.charAt(i) + ""));
+                }
+            }
+            if(!silent) System.out.print("\nSum: " + sum + " Check Digit: " + last + " ==> ");
+            if((sum + last) % 10 == 0 || (sum - last) % 10 == 0)
+            {
+                if(!silent) System.out.print("Correct \n");
+                return true;
+            }
+            System.out.print("Wrong \n");
+            return  false;
+        }
+        catch (Exception e)
+        {
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+
 }

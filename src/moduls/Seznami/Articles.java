@@ -3,8 +3,6 @@ package moduls.Seznami;
 import com.google.gson.Gson;
 import moduls.Artikel;
 import moduls.Podpora.JsonSupport;
-import moduls.Racun;
-import sun.awt.image.ImageWatched;
 
 import java.util.LinkedList;
 

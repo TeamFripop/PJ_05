@@ -1,6 +1,9 @@
 package moduls;
 
+import java.util.UUID;
+
 public class Podjetje implements Searchable {
+    private UUID id;
     private String ime;
     private String davcna_st;
     private String maticna_st;
@@ -27,7 +30,23 @@ public class Podjetje implements Searchable {
         this.email = email;
         this.naslov = naslov;
     }
-
+    //Mysql Constructor
+    public Podjetje(UUID id, String ime, String davcna_st, String maticna_st, String telefon, boolean je_davcni_zavezanec, String naslov) {
+        if(id == null)
+        {
+            this.id = UUID.randomUUID();
+        }
+        else
+        {
+            this.id = id;
+        }
+        this.ime = ime;
+        this.davcna_st = davcna_st;
+        this.maticna_st = maticna_st;
+        this.je_davcni_zavezanec = je_davcni_zavezanec;
+        this.telefon = telefon;
+        this.naslov = naslov;
+    }
     public String getNaslov() {
         return naslov;
     }
@@ -83,7 +102,13 @@ public class Podjetje implements Searchable {
     public void setEmail(String email) {
         this.email = email;
     }
+    public UUID getId() {
+        return id;
+    }
 
+    public void setId(UUID id) {
+        this.id = id;
+    }
     public boolean search(String data)
     {
         if(ime.contains(data) || (davcna_st + "").contains(data) || (maticna_st + "").contains(data) || telefon.contains(data) || email.contains(data) || (je_davcni_zavezanec + "").contains(data))

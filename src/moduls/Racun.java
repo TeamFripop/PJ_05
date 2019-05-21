@@ -3,29 +3,37 @@ package moduls;
 import moduls.Seznami.Articles;
 
 import java.util.Date;
+import java.util.UUID;
 
 public class Racun implements Searchable {
     private static int GLOBAL_ID = 1000;
-    private int id;
+    private UUID id;
     private Date datum;
     private int skupniZnesek;
     private String EAN;
     private Articles artikli;
-    private int ddv = 22;
+    private double ddv = 22.2;
     private String izdajatelj;
     private String idDDV;
 
-    public Racun(int id) {
+    public Racun(UUID id) {
         this.id = id;
         datum = new Date();
     }
 
-    public Racun(int id, String EAN) {
+    public Racun(UUID id, String EAN) {
         this.id = id;
         datum = new Date();
     }
 
-    public Racun(int id, Articles artikli, String izdajatelj) {
+    public Racun(UUID id, double total, double total_vat) {
+        this.id = id;
+        this.skupniZnesek = (int)(total * 100);
+        this.ddv = total_vat;
+        datum = new Date();
+    }
+
+    public Racun(UUID id, Articles artikli, String izdajatelj) {
         this.id = id;
         this.artikli = artikli;
         this.izdajatelj = izdajatelj;
@@ -33,11 +41,14 @@ public class Racun implements Searchable {
         calculatePrice();
     }
 
-    public static int getGlobalId() {
+    /*public static int getGlobalId() {
         GLOBAL_ID++;
         return GLOBAL_ID;
-    }
+    }*/
 
+    public static UUID getGlobalId() {
+        return UUID.randomUUID();
+    }
     public Articles getArtikli() {
         return artikli;
     }
@@ -63,8 +74,12 @@ public class Racun implements Searchable {
         return skupniZnesek / (double) 100;
     }
 
-    public int getId() {
+    public UUID getId() {
         return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public Date getDatum() {
@@ -119,7 +134,7 @@ public class Racun implements Searchable {
                 '}';
     }
 
-    public int getDdv() {
+    public double getDdv() {
         return ddv;
     }
 
